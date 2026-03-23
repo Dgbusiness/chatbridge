@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <style>
+         * {
+         color: #fff;
+         font-family: Roboto,sans-serif;
+         font-size: 21px;
+         font-weight: 700;
+         line-height: 1.5em;
+         text-shadow: 0 0 2px #000,1px 1px 2px #000,-1px -1px 2px #000
+         }
+	 #chat{
+    bottom: 0;
+    display: table;
+    left: 0;
+    perspective: 600px;
+    position: absolute;
+    table-layout: fixed;
+    width: 100%;
+         }
+         body {
+         background-color: rgba(0, 0, 0, 0);
+         margin: 0px auto;
+         overflow: hidden;
+         }
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* espacio entre badges, nombre y mensaje */
+}
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.chatMsg {
+  animation: slideInLeft 0.6s ease-out forwards;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+         .chatMsg { 
+         margin: 3px 0;
+         background: #00000099;
+         border-radius: 2px;
+         margin: 2px;
+         padding-bottom: 2px;
+         padding-top: 2px; 
+         padding-left: 4px;
+         }
+.chatMsg * {
+    font-size: 22px!important;
+}
+span.badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+img.badge:first-of-type {
+    margin-left: 0;
+}
+.badge {
+  height: 19px !important;
+  width: 19px !important;
+  vertical-align: middle;
+  filter: drop-shadow(0 0 1px #000)
+          drop-shadow(0 0 0 #000)
+          drop-shadow(0 0 0 #000);
+}
+.message {
+    overflow-wrap: break-word;
+}
+         .twitch { color: #9146FF; }
+         .youtube { color: #F313FF; }
+      </style>
+   </head>
+   <body>
+      <div id="chat"></div>
+<script>
+  const ws = new WebSocket('ws://localhost:8080');
+  const chat = document.getElementById('chat');
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    const div = document.createElement('div');
+
+    // Crear estructura del mensaje
+    div.classList.add('chatMsg');
+    div.innerHTML = `
+      <span class="content">
+        <span class="badges">
+          <img src="assets/${msg.platform}.ico" class="badge">
+   ${msg.badge
+        ? `<img src='assets/${msg.badge}.png' class="badge">`
+        : ''
+    }         
+   	   <span style="color:${msg.userColor};">${msg.user}</span>:
+        </span>
+      </span>
+        <span class="message"> ${msg.text}</span>
+
+    `;
+
+    chat.appendChild(div);
+
+    // Limitar cantidad de mensajes
+    if (chat.childNodes.length > 10) {
+      const first = chat.firstChild;
+      first.classList.add('fade-out');
+      setTimeout(() => chat.removeChild(first), 800);
+    }
+
+    // Tiempo de vida del mensaje
+    setTimeout(() => {
+      div.style.animation = 'fadeOut 0.8s forwards';
+      setTimeout(() => {
+        if (div.parentNode === chat) chat.removeChild(div);
+      }, 800);
+    }, 90000);
+  };
+</script>
+   </body>
+</html>

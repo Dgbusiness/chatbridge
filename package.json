@@ -1,0 +1,24 @@
+{
+  "name": "chatbridge",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "start:yt": "PLATFORM=yt node server.js",
+    "start:tw": "PLATFORM=tw node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "tmi.js": "^1.8.5",
+    "ws": "^8.18.3",
+    "youtube-chat": "^2.2.0",
+    "youtubei.js": "^16.0.1",
+    "ytjs": "^1.1.0"
+  }
+}
