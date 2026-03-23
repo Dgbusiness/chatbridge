@@ -11,7 +11,7 @@ A lightweight Node.js server that aggregates Twitch and YouTube live chat into a
 
 1. Clone the repository and install dependencies:
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/Dgbusiness/chatbridge
    cd chatbridge
    npm install
    ```
