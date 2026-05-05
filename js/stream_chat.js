@@ -1,11 +1,24 @@
-const ws = new WebSocket('ws://localhost:8080');
 const chat = document.getElementById('chat');
+const MESSAGE_TTL = 90000;
+const MAX_MESSAGES = 10;
 
-ws.onmessage = (e) => {
-  const msg = JSON.parse(e.data);
+function removeDiv(div) {
+  if (!div.parentNode) return;
+  div.style.animation = 'fadeOut 0.8s forwards';
+  setTimeout(() => { if (div.parentNode) div.parentNode.removeChild(div); }, 800);
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const div of [...chat.children]) {
+    if (now - parseInt(div.dataset.addedAt) > MESSAGE_TTL) removeDiv(div);
+  }
+}, 2000);
+
+function addMessage(msg) {
   const div = document.createElement('div');
-
   div.classList.add('chatMsg');
+  div.dataset.addedAt = Date.now();
   div.innerHTML = `
     <span class="content">
       <span class="badges">
@@ -19,16 +32,17 @@ ws.onmessage = (e) => {
 
   chat.appendChild(div);
 
-  if (chat.childNodes.length > 10) {
-    const first = chat.firstChild;
+  if (chat.children.length > MAX_MESSAGES) {
+    const first = chat.firstElementChild;
     first.classList.add('fade-out');
-    setTimeout(() => chat.removeChild(first), 800);
+    setTimeout(() => { if (first.parentNode) first.parentNode.removeChild(first); }, 800);
   }
+}
 
-  setTimeout(() => {
-    div.style.animation = 'fadeOut 0.8s forwards';
-    setTimeout(() => {
-      if (div.parentNode === chat) chat.removeChild(div);
-    }, 800);
-  }, 90000);
-};
+function connect() {
+  const ws = new WebSocket('ws://localhost:8080');
+  ws.onmessage = (e) => addMessage(JSON.parse(e.data));
+  ws.onclose = () => setTimeout(connect, 3000);
+}
+
+connect();
